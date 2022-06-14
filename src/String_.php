@@ -71,7 +71,7 @@ final class String_ implements Stream
 
 	public function eof(): bool
 	{
-		return $this->getPos() === strlen($this->getString()) - 1;
+		return $this->getPos() >= strlen($this->getString()) - 1;
 	}
 
 	public function isSeekable(): bool
@@ -81,7 +81,7 @@ final class String_ implements Stream
 
 	public function seek($offset, $whence = SEEK_SET)
 	{
-		if ($this->isSeekable()) {
+		if (!$this->isSeekable()) {
 			throw new RuntimeException('stream is not seekable');
 		}
 		switch ($whence) {
@@ -136,7 +136,7 @@ final class String_ implements Stream
 		if ($this->getIsDetached()) {
 			throw new RuntimeException('resource is detached');
 		}
-		if ($this->isReadable()) {
+		if (!$this->isReadable()) {
 			throw new RuntimeException('stream is not readable');
 		}
 		if ($this->eof()) {
