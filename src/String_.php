@@ -31,7 +31,8 @@ final class String_ implements Stream
 		$this->setIsSeekable(true);
 		$this->setIsWritable(true);
 		$this->setPos(0);
-		$this->setString($_string);
+		$this->setString('');
+		$this->write($_string);
 	}
 
 	public function __toString()
@@ -71,6 +72,9 @@ final class String_ implements Stream
 
 	public function eof(): bool
 	{
+		if ($this->getIsDetached()) {
+			throw new RuntimeException('resource is detached');
+		}
 		return $this->getPos() >= strlen($this->getString()) - 1;
 	}
 
@@ -81,6 +85,9 @@ final class String_ implements Stream
 
 	public function seek($offset, $whence = SEEK_SET)
 	{
+		if ($this->getIsDetached()) {
+			throw new RuntimeException('resource is detached');
+		}
 		if (!$this->isSeekable()) {
 			throw new RuntimeException('stream is not seekable');
 		}
@@ -96,7 +103,7 @@ final class String_ implements Stream
 			default:
 				throw new RuntimeException('invalid whence: ' . $whence);
 		}
-		if ($offset > $this->getSize() - 1) {
+		if ($offset > $this->getSize() - 1 && $offset > 0) {
 			throw new OutOfBoundsException('cannot seek past end of stream');
 		}
 		if ($offset < 0) {
@@ -107,6 +114,9 @@ final class String_ implements Stream
 
 	public function rewind()
 	{
+		if ($this->getIsDetached()) {
+			throw new RuntimeException('resource is detached');
+		}
 		if (!$this->isSeekable()) {
 			throw new RuntimeException('stream is not seekable');
 		}
@@ -120,6 +130,12 @@ final class String_ implements Stream
 
 	public function write($string): int
 	{
+		if ($this->getIsDetached()) {
+			throw new RuntimeException('resource is detached');
+		}
+		if (!$this->getIsWritable()) {
+			throw new RuntimeException('stream is not writable');
+		}
 		$this->setString(
 			\substr_replace($this->getString(), $string, $this->getPos() + 1)
 		);
@@ -154,7 +170,7 @@ final class String_ implements Stream
 		if ($this->getIsDetached()) {
 			throw new RuntimeException('resource is detached');
 		}
-		if ($this->isReadable()) {
+		if (!$this->isReadable()) {
 			throw new RuntimeException('stream is not readable');
 		}
 		if ($this->eof()) {
