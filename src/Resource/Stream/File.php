@@ -2,6 +2,8 @@
 
 namespace Streamable\Resource\Stream;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Streamable\Stream;
 
 final class File implements Stream
@@ -18,7 +20,7 @@ final class File implements Stream
 	{
 		$h = fopen($filename, $mode);
 		if ($h === false) {
-			throw new \RuntimeException(
+			throw new RuntimeException(
 				sprintf(
 					'Failed to open file with mode: filename `%s`, mode `%s`',
 					$filename,
@@ -60,7 +62,7 @@ final class File implements Stream
 	{
 		$i = ftell($this->getResource());
 		if ($i === false) {
-			throw new \RuntimeException('Failed to get current position');
+			throw new RuntimeException('Failed to get current position');
 		}
 		return $i;
 	}
@@ -82,7 +84,7 @@ final class File implements Stream
 	{
 		$result = fseek($this->getResource(), $offset, $whence);
 		if ($result === -1) {
-			throw new \RuntimeException('Failed to seek');
+			throw new RuntimeException('Failed to seek');
 		}
 	}
 
@@ -90,7 +92,7 @@ final class File implements Stream
 	{
 		$result = rewind($this->getResource());
 		if ($result === false) {
-			throw new \RuntimeException('Failed to rewind');
+			throw new RuntimeException('Failed to rewind');
 		}
 	}
 
@@ -106,10 +108,10 @@ final class File implements Stream
 	{
 		$n = fwrite($this->getResource(), $string);
 		if ($n === false) {
-			throw new \RuntimeException('Failed to write');
+			throw new RuntimeException('Failed to write');
 		}
 		if ($n !== strlen($string)) {
-			throw new \RuntimeException('Failed to write');
+			throw new RuntimeException('Failed to write');
 		}
 	}
 
@@ -125,7 +127,7 @@ final class File implements Stream
 	{
 		$result = fread($this->getResource(), $length);
 		if ($result === false) {
-			throw new \RuntimeException('Failed to read');
+			throw new RuntimeException('Failed to read');
 		}
 		return $result;
 	}
@@ -134,7 +136,7 @@ final class File implements Stream
 	{
 		$result = stream_get_contents($this->getResource());
 		if ($result === false) {
-			throw new \RuntimeException('Failed to get contents');
+			throw new RuntimeException('Failed to get contents');
 		}
 		return $result;
 	}
@@ -144,13 +146,27 @@ final class File implements Stream
 		return stream_get_meta_data($this->getResource());
 	}
 
-	private function getResource(): resource
+	/**
+	 * @return resource
+	 */
+	private function getResource()
 	{
 		return $this->resource;
 	}
 
-	private function setResource(resource $resource): void
+	/**
+	 * @param resource $resource
+	 */
+	private function setResource($resource): void
 	{
+		if (!is_resource($resource)) {
+			throw new InvalidArgumentException(
+				sprintf(
+					'Expected resource, got `%s`',
+					gettype($resource)
+				)
+			);
+		}
 		$this->resource = $resource;
 	}
 }
