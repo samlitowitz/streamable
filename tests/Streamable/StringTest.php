@@ -1,10 +1,11 @@
 <?php
 
-namespace Streamable;
+namespace Streamable\Tests;
 
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Streamable\String_;
 
 final class StringTest extends TestCase
 {

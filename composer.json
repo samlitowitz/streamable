@@ -20,7 +20,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Streamable\\": ["src/", "tests/Streamable/"]
+            "Streamable\\Tests\\": ["tests/Streamable/"]
         }
     },
     "require-dev": {
